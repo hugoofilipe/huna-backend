@@ -3,8 +3,8 @@ var transport = nodemailer.createTransport({
   host: "mail.huna.pt",
   port: 465,
   auth: {
-    user: "geral@huna.pt",
-    pass: "Huan5999."
+    user: "",
+    pass: ""
   },
   secureConnection:false,
   debug: false, // show debug output
