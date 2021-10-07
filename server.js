@@ -1,30 +1,58 @@
 const express = require('express');
-const path = require('path');
-const app = express(),
-      bodyParser = require("body-parser");
-
-// place holder for the data
-const users = [];
+const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
+const app = express();
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../my-app/build')));
+app.use(bodyParser.urlencoded({ extended: false }));
 
-app.get('/api/users', (req, res) => {
-  console.log('api/users called!')
-  res.json(users);
+const route = express.Router();
+const port = process.env.PORT || 5000;
+app.use('/api/v1', route);
+
+app.get('/api/ping', (req, res) => {
+  res.send('Pong !')
 });
 
-app.post('/api/user', (req, res) => {
-  const user = req.body.user;
-  console.log('Adding user:::::', user);
-  users.push(user);
-  res.json("user addedd");
+app.get('/api/text-mail', function (req, res) {
+  console.log(`called by GET`);
+  res.send('Hello test-mail!')
+})
+app.listen( port, () => {
+    console.log(`Server listening on the foo ${port}`);
 });
 
-app.get('/', (req,res) => {
-  res.sendFile(path.join(__dirname, '../my-app/build/index.html'));
+// create reusable transporter object using the default SMTP transport
+const transporter = nodemailer.createTransport({
+  port: 465,               // true for 465, false for other ports
+  host: "mail.huna.pt",
+     auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PWD,
+       },
+  secure: true,
 });
 
-app.listen( () => {
-    console.log(`Server listening on the foo`);
+app.post('/api/text-mail', (req, res) => {
+  const {to, subject, text } = req.body;
+  const mailData = {
+    from: '"HUNA website" <geral@huna.pt>',
+    to: to,
+    subject: subject,
+    text: text,
+    html: `<b>Hey there! ${text}</b><br> This is our first message sent with Nodemailer<br />`
+  };
+
+  transporter.sendMail(mailData, (error, info) => {
+      if (error) {
+          return console.log(error);
+      }
+      // res.status(200).send({ message: "Mail send", message_id: info.messageId });
+      res.status(200).send({ message: "Mail send"});
+  });
 });
+
+// app.post('/api/text-mail', (req, res) => {
+//   console.log(`called by post`);
+//   res.status(200).send({ message: "Mail send (test)" });
+// });
