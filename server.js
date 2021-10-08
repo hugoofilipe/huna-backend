@@ -34,15 +34,12 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post('/api/text-mail', (req, res) => {
-  const {to, subject, name, tel, text } = req.body;
+  const {to, subject, name, tel, mail, service, field, text } = req.body;
   const mailData = {
     from: '"HUNA website" <geral@huna.pt>',
     to: to,
     subject: subject,
-    text: text,
-    name: name,
-    tel: tel,
-    html: `<b>Nome: ${name} tel: ${tel} Mensagem: ${text}</b>`
+    html: `<p><b>Nome: ${name}</b><p><b>Telefone: ${tel}</b></p><p><b>Email: ${mail}</b></p><p><b>Tipo de serviço: ${service}</b></p><p><b>Area de trabalho: ${field}</b></p><p>Mensagem: ${text}</p>`
   };
 
   transporter.sendMail(mailData, (error, info) => {
